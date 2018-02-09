@@ -104,6 +104,9 @@ async def deal(ctx):
 
 @bot.command(pass_context=True)
 async def join(ctx):
+    '''
+    Join the game in this channel.
+    '''
     if ctx.message.channel in games:
         game = games[ctx.message.channel]
         if ctx.message.author not in game.players:
@@ -115,6 +118,9 @@ async def join(ctx):
 
 @bot.command(pass_context=True)
 async def quit(ctx):
+    '''
+    Leave the game in this channel.
+    '''
     if ctx.message.channel in games:
         game = games[ctx.message.channel]
         if ctx.message.author in game.players:
