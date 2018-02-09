@@ -7,6 +7,8 @@ import discord
 import asyncio
 import sys
 from discord.ext import commands
+from Game import Game
+from Player import Player
 
 description = '''A bot for managing games of Kings.
 
@@ -27,10 +29,27 @@ async def on_ready():
 
 
 @bot.command(pass_context=True)
+async def playing(ctx):
+    '''
+    Checks if there is a game in the current channel.
+    '''
+    if ctx.message.channel in games:
+        await bot.say('There is a game in this channel!  Say !join to join.')
+    else:
+        await bot.say('There is no game in this channel. Say !start to start one!')
+
+
+@bot.command(pass_context=True)
 async def start(ctx):
     '''
     Starts a game of kings in this channel.
     '''
+    if ctx.message.channel in games:
+        await bot.say('There is already a game of Kings in this channel.')
+    else:
+        game = await Game.create(await Player.create(ctx.message.author))
+        games[ctx.message.channel] = game
+        await bot.say('#havefungetdrunk Tell those scrubs to !join')
 
 
 @bot.command(pass_context=True)
@@ -38,6 +57,11 @@ async def end(ctx):
     '''
     Ends the game of kings in the current channel.
     '''
+    if ctx.message.channel in games:
+        del games[ctx.message.channel]
+        await bot.say('Game Over. You could always !start another one.')
+    else:
+        await bot.say('No game in this channel.')
 
 
 @bot.command(pass_context=True)
@@ -45,6 +69,25 @@ async def shuffle(ctx):
     '''
     Shuffles all cards back into the deck, emptying hands.
     '''
+    if ctx.message.channel in games:
+        game = games[ctx.message.channel]
+        await game.deck.reset()
+        for player in game.players:
+            player.hand = []
+        await bot.say('Everything is back in the pile.')
+
+
+@bot.command(pass_context=True)
+async def hand(ctx):
+    '''
+    DMs your hand to you
+    '''
+    if ctx.message.channel in games:
+        game = games[ctx.message.channel]
+        if ctx.message.author in game.players:
+            player = await game.get_player(ctx.message.author)
+            message = '\n'.join(player.hand) if player.hand else 'You have an empty hand'
+            await bot.send_message(ctx.message.author, message)
 
 
 @bot.command(pass_context=True)
@@ -52,6 +95,38 @@ async def deal(ctx):
     '''
     Deals a card to the player.
     '''
+    if ctx.message.channel not in games:
+        return
+    game = games[ctx.message.channel]
+    tup = await game.draw()
+    if not tup:
+        bot.say('That was the last card!  Feel free to !start over...')
+    else:
+        player, card = tup
+        mention = player.user.mention
+        await bot.say('{} you drew the {}'.format(mention, card))
+
+
+@bot.command(pass_context=True)
+async def join(ctx):
+    if ctx.message.channel in games:
+        game = games[ctx.message.channel]
+        if ctx.message.author not in game.players:
+            await game.add(Player.create(ctx.message.author))
+            await bot.say('{} added.'.format(ctx.message.author.mention))
+        else:
+            await bot.say("You're already playing {}".format(ctx.message.author.mention))
+
+
+@bot.command(pass_context=True)
+async def quit(ctx):
+    if ctx.message.channel in games:
+        game = games[ctx.message.channel]
+        if ctx.message.author in game.players:
+            game.players.remove(ctx.message.author)
+            if not game.players:
+                await end(ctx)
+        await bot.say('Bye!')
 
 
 if len(sys.argv) == 2:
