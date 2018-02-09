@@ -8,10 +8,7 @@ from discord.ext import commands
 from Game import Game
 from Player import Player
 
-description = '''A bot for managing games of Kings.
-
-Type `!help` for a list of commands.
-'''
+description = '''A bot for managing games of Kings.'''
 
 bot = commands.Bot(command_prefix='!', description=description)
 
