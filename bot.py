@@ -68,7 +68,7 @@ async def shuffle(ctx):
         game = games[ctx.message.channel]
         await game.deck.reset()
         for player in game.players:
-            player.hand = []
+            player.hand = set()
         await bot.say('Everything is back in the pile.')
 
 
