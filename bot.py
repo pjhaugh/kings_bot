@@ -35,6 +35,16 @@ async def playing(ctx):
 
 
 @bot.command(pass_context=True)
+async def players(ctx):
+    '''
+    Display the players in this game.
+    '''
+    if ctx.message.channel in games:
+        message = '\n'.join(player.user.display_name for player in games[ctx.message.channel].players)
+        await bot.say(message)
+
+
+@bot.command(pass_context=True)
 async def start(ctx):
     '''
     Starts a game of kings in this channel.
@@ -126,7 +136,7 @@ async def quit(ctx):
         if ctx.message.author in game.players:
             game.players.remove(ctx.message.author)
             if not game.players:
-                await end(ctx)
+                del games[ctx.message.channel]
         await bot.say('Bye!')
 
 

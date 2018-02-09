@@ -19,7 +19,7 @@ class Deck:
         random.shuffle(self._deck)
 
     async def reset(self):
-        self._deck = ['{} of {}'.format(*card) for card in zip(values, suits)]
+        self._deck = ['{} of {}'.format(value, suit) for value in values for suit in suits]
         self._discard = []
 
     async def deal(self):
