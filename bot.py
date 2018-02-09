@@ -110,7 +110,7 @@ async def join(ctx):
     if ctx.message.channel in games:
         game = games[ctx.message.channel]
         if ctx.message.author not in game.players:
-            await game.add(Player.create(ctx.message.author))
+            await game.add(await Player.create(ctx.message.author))
             await bot.say('{} added.'.format(ctx.message.author.mention))
         else:
             await bot.say("You're already playing {}".format(ctx.message.author.mention))
