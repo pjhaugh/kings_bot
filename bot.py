@@ -3,8 +3,6 @@
 # Patrick Haugh 2018
 # MIT License
 
-import discord
-import asyncio
 import sys
 from discord.ext import commands
 from Game import Game
