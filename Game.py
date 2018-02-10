@@ -24,7 +24,7 @@ game_rules = [
               ' must drink'),
     ('King', 'Hotseat.  Everyone asks you a question. You must drink if'
              ' you refuse to answer.'),
-    ('Ace', 'Make a rule. Use !addrule <name> = <description> to add it here.')
+    ('Ace', 'Make a rule. Use !addrule "name" "description" to add it here.')
 ]
 
 
