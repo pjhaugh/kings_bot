@@ -151,6 +151,27 @@ async def rules(ctx):
         await bot.say(message)
 
 
+@bot.command(pass_context=True)
+async def addrule(ctx, name, rule):
+    '''
+    Add a rule to the game.
+    '''
+    if ctx.message.channel in games:
+        games[ctx.message.channel].rules[name] = rule
+        await bot.say('Added')
+
+
+@bot.command(pass_context=True)
+async def removerule(ctx, name):
+    '''
+    Remove a rule by name
+    '''
+    if ctx.message.channel in games:
+        rules = games[ctx.message.channel].rules
+        if name in rules:
+            del rules[name]
+            bot.say('{} removed'.format(name))
+
 if len(sys.argv) == 2:
     bot.run(sys.argv[1])
 else:
