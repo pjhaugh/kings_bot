@@ -3,7 +3,7 @@
 
 import random
 
-values = [*range(2, 11), 'Jack', 'King', 'Queen', 'Ace']
+values = [*range(2, 11), 'Jack', 'Queen', 'King', 'Ace']
 suits = '♠♥♦♣'
 
 

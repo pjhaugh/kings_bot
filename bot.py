@@ -140,6 +140,17 @@ async def quit(ctx):
         await bot.say('Bye!')
 
 
+@bot.command(pass_context=True)
+async def rules(ctx):
+    '''
+    Display the basic rules of Kings.
+    '''
+    if ctx.message.channel in games:
+        message = '\n'.join('{}: {}'.format(*item) for item in
+                            games[ctx.message.channel].rules.items())
+        await bot.say(message)
+
+
 if len(sys.argv) == 2:
     bot.run(sys.argv[1])
 else:
