@@ -170,7 +170,7 @@ async def removerule(ctx, name):
         rules = games[ctx.message.channel].rules
         if name in rules:
             del rules[name]
-            bot.say('{} removed'.format(name))
+            await bot.say('{} removed'.format(name))
 
 if len(sys.argv) == 2:
     bot.run(sys.argv[1])
