@@ -4,6 +4,7 @@
 # MIT License
 
 import sys
+import discord
 from discord.ext import commands
 from Game import Game
 from Player import Player
@@ -21,6 +22,7 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('-----')
+    await bot.change_presence(game=discord.Game(name='Kings'))
 
 
 @bot.command(pass_context=True)
