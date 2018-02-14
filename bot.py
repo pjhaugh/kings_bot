@@ -25,154 +25,154 @@ async def on_ready():
     await bot.change_presence(game=discord.Game(name='Kings'))
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def playing(ctx):
     '''
     Checks if there is a game in the current channel.
     '''
-    if ctx.message.channel in games:
-        await bot.say('There is a game in this channel!  Say !join to join.')
+    if ctx.channel in games:
+        await ctx.send('There is a game in this channel!  Say !join to join.')
     else:
-        await bot.say('There is no game in this channel. Say !start to start one!')
+        await ctx.send('There is no game in this channel. Say !start to start one!')
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def players(ctx):
     '''
     Display the players in this game.
     '''
-    if ctx.message.channel in games:
-        message = '\n'.join(player.user.display_name for player in games[ctx.message.channel].players)
-        await bot.say(message)
+    if ctx.channel in games:
+        message = '\n'.join(player.user.display_name for player in games[ctx.channel].players)
+        await ctx.send(message)
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def start(ctx):
     '''
     Starts a game of kings in this channel.
     '''
-    if ctx.message.channel in games:
-        await bot.say('There is already a game of Kings in this channel.')
+    if ctx.channel in games:
+        await ctx.send('There is already a game of Kings in this channel.')
     else:
-        game = await Game.create(await Player.create(ctx.message.author))
-        games[ctx.message.channel] = game
-        await bot.say('#havefungetdrunk Tell those scrubs to !join')
+        game = await Game.create(await Player.create(ctx.author))
+        games[ctx.channel] = game
+        await ctx.send('#havefungetdrunk Tell those scrubs to !join')
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def end(ctx):
     '''
     Ends the game of kings in the current channel.
     '''
-    if ctx.message.channel in games:
-        del games[ctx.message.channel]
-        await bot.say('Game Over. You could always !start another one.')
+    if ctx.channel in games:
+        del games[ctx.channel]
+        await ctx.send('Game Over. You could always !start another one.')
     else:
-        await bot.say('No game in this channel.')
+        await ctx.send('No game in this channel.')
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def shuffle(ctx):
     '''
     Shuffles all cards back into the deck, emptying hands.
     '''
-    if ctx.message.channel in games:
-        game = games[ctx.message.channel]
+    if ctx.channel in games:
+        game = games[ctx.channel]
         await game.deck.reset()
         for player in game.players:
             player.hand = set()
-        await bot.say('Everything is back in the pile.')
+        await ctx.send('Everything is back in the pile.')
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def hand(ctx):
     '''
     DMs your hand to you
     '''
-    if ctx.message.channel in games:
-        game = games[ctx.message.channel]
-        if ctx.message.author in game.players:
-            player = await game.get_player(ctx.message.author)
+    if ctx.channel in games:
+        game = games[ctx.channel]
+        if ctx.author in game.players:
+            player = await game.get_player(ctx.author)
             message = '\n'.join(player.hand) if player.hand else 'You have an empty hand'
-            await bot.send_message(ctx.message.author, message)
+            await ctx.author.send(message)
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def deal(ctx):
     '''
     Deals a card to the player.
     '''
-    if ctx.message.channel not in games:
+    if ctx.channel not in games:
         return
-    game = games[ctx.message.channel]
+    game = games[ctx.channel]
     tup = await game.draw()
     if not tup:
-        bot.say('That was the last card!  Feel free to !start over...')
+        ctx.send('That was the last card!  Feel free to !start over...')
     else:
         player, card = tup
         mention = player.user.mention
-        await bot.say('{} you drew the {}'.format(mention, card))
+        await ctx.send('{} you drew the {}'.format(mention, card))
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def join(ctx):
     '''
     Join the game in this channel.
     '''
-    if ctx.message.channel in games:
-        game = games[ctx.message.channel]
-        if ctx.message.author not in game.players:
-            await game.add(await Player.create(ctx.message.author))
-            await bot.say('{} added.'.format(ctx.message.author.mention))
+    if ctx.channel in games:
+        game = games[ctx.channel]
+        if ctx.author not in game.players:
+            await game.add(await Player.create(ctx.author))
+            await ctx.send('{} added.'.format(ctx.author.mention))
         else:
-            await bot.say("You're already playing {}".format(ctx.message.author.mention))
+            await ctx.send("You're already playing {}".format(ctx.author.mention))
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def quit(ctx):
     '''
     Leave the game in this channel.
     '''
-    if ctx.message.channel in games:
-        game = games[ctx.message.channel]
-        if ctx.message.author in game.players:
-            game.players.remove(ctx.message.author)
+    if ctx.channel in games:
+        game = games[ctx.channel]
+        if ctx.author in game.players:
+            game.players.remove(ctx.author)
             if not game.players:
-                del games[ctx.message.channel]
-        await bot.say('Bye!')
+                del games[ctx.channel]
+        await ctx.send('Bye!')
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def rules(ctx):
     '''
     Display the basic rules of Kings.
     '''
-    if ctx.message.channel in games:
+    if ctx.channel in games:
         message = '\n'.join('{}: {}'.format(*item) for item in
-                            games[ctx.message.channel].rules.items())
-        await bot.say(message)
+                            games[ctx.channel].rules.items())
+        await ctx.send(message)
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def addrule(ctx, name, rule):
     '''
     Add a rule to the game.
     '''
-    if ctx.message.channel in games:
-        games[ctx.message.channel].rules[name] = rule
-        await bot.say('Added')
+    if ctx.channel in games:
+        games[ctx.channel].rules[name] = rule
+        await ctx.send('Added')
 
 
-@bot.command(pass_context=True)
+@bot.command()
 async def removerule(ctx, name):
     '''
     Remove a rule by name
     '''
-    if ctx.message.channel in games:
-        rules = games[ctx.message.channel].rules
+    if ctx.channel in games:
+        rules = games[ctx.channel].rules
         if name in rules:
             del rules[name]
-            await bot.say('{} removed'.format(name))
+            await ctx.send('{} removed'.format(name))
 
 if len(sys.argv) == 2:
     bot.run(sys.argv[1])
