@@ -3,6 +3,7 @@
 # Patrick Haugh 2018
 # MIT License
 
+import inspect
 import sys
 import discord
 from discord.ext import commands
@@ -22,7 +23,7 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('-----')
-    await bot.change_presence(game=discord.Game(name='Kings'))
+    await bot.change_presence(activity=discord.Game(name='Kings'))
 
 
 @bot.command()
@@ -148,8 +149,7 @@ async def rules(ctx):
     Display the basic rules of Kings.
     '''
     if ctx.channel in games:
-        message = '\n'.join('{}: {}'.format(*item) for item in
-                            games[ctx.channel].rules.items())
+        message = '\n'.join('{}: {}'.format(*item) for item in games[ctx.channel].rules.items())
         await ctx.send(message)
 
 
@@ -173,6 +173,7 @@ async def removerule(ctx, name):
         if name in rules:
             del rules[name]
             await ctx.send('{} removed'.format(name))
+
 
 if len(sys.argv) == 2:
     bot.run(sys.argv[1])
