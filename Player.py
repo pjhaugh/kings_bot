@@ -8,6 +8,7 @@ class Player:
         self = Player()
         self.user = user
         self.hand = set()
+        self.mention = user.mention
         return self
 
     def __eq__(self, other):

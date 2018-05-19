@@ -1,9 +1,10 @@
 # Patrick Haugh
 # MIT License
 
+from Card import Card
 import random
 
-values = [*range(2, 11), 'Jack', 'Queen', 'King', 'Ace']
+values = [*map(str, range(2, 11)), 'Jack', 'Queen', 'King', 'Ace']
 suits = '♠♥♦♣'
 
 
@@ -19,7 +20,7 @@ class Deck:
         random.shuffle(self._deck)
 
     async def reset(self):
-        self._deck = ['{} of {}'.format(value, suit) for value in values for suit in suits]
+        self._deck = [Card(value, suit) for value in values for suit in suits]
         self._discard = []
 
     async def deal(self):

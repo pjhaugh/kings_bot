@@ -3,7 +3,6 @@
 # Patrick Haugh 2018
 # MIT License
 
-import inspect
 import sys
 import discord
 from discord.ext import commands
@@ -43,8 +42,17 @@ async def players(ctx):
     Display the players in this game.
     '''
     if ctx.channel in games:
-        message = '\n'.join(player.user.display_name for player in games[ctx.channel].players)
+        message = '\n'.join(
+            player.user.display_name for player in games[ctx.channel].players)
         await ctx.send(message)
+
+
+@bot.command()
+async def next():
+    '''
+    Display the next person to draw.
+    '''
+    await ctx.send(games[ctx.channel].players[-1])
 
 
 @bot.command()
@@ -80,6 +88,7 @@ async def shuffle(ctx):
     if ctx.channel in games:
         game = games[ctx.channel]
         await game.deck.reset()
+        await game.deck.shuffle()
         for player in game.players:
             player.hand = set()
         await ctx.send('Everything is back in the pile.')
@@ -94,7 +103,8 @@ async def hand(ctx):
         game = games[ctx.channel]
         if ctx.author in game.players:
             player = await game.get_player(ctx.author)
-            message = '\n'.join(player.hand) if player.hand else 'You have an empty hand'
+            message = '\n'.join(
+                player.hand) if player.hand else 'You have an empty hand'
             await ctx.author.send(message)
 
 
@@ -113,6 +123,10 @@ async def deal(ctx):
         player, card = tup
         mention = player.user.mention
         await ctx.send('{} you drew the {}'.format(mention, card))
+        print(card.value)
+        print(' '.join(game.rules.keys()))
+        if card.value in game.rules:
+            await ctx.send('{}: {}'.format(card.value, game.rules[card.value]))
 
 
 @bot.command()
@@ -149,12 +163,13 @@ async def rules(ctx):
     Display the basic rules of Kings.
     '''
     if ctx.channel in games:
-        message = '\n'.join('{}: {}'.format(*item) for item in games[ctx.channel].rules.items())
+        message = '\n'.join('{}: {}'.format(*item)
+                            for item in games[ctx.channel].rules.items())
         await ctx.send(message)
 
 
 @bot.command()
-async def addrule(ctx, name, rule):
+async def addrule(ctx, name, *, rule):
     '''
     Add a rule to the game.
     '''
@@ -173,6 +188,46 @@ async def removerule(ctx, name):
         if name in rules:
             del rules[name]
             await ctx.send('{} removed'.format(name))
+
+
+@bot.command()
+async def kick(ctx, player: discord.Member):
+    '''
+    Remove a player from the game
+    '''
+    if ctx.channel in games and player in games[ctx.channel].players:
+        games[ctx.channel].players.remove(player)
+        await ctx.send("{} removed.".format(player.mention))
+
+
+@bot.command()
+async def count(ctx):
+    '''
+    Display the number of remaining cards
+    '''
+    await ctx.send("Thare are {} cards remaining.".format(len(games[ctx.channel].deck)))
+
+
+@bot.command()
+async def addplayer(ctx, player: discord.User):
+    '''
+    Add a person to the game.
+    '''
+    if ctx.channel in games:
+        game = games[ctx.channel]
+        if player not in game.players:
+            await game.add(await Player.create(player))
+            await ctx.send('{} added.'.format(player.mention))
+        else:
+            await ctx.send("You're already playing {}".format(player.mention))
+
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandNotFound):
+        await ctx.author.send("Invalid command")
+        return
+    print("OK")
 
 
 if len(sys.argv) == 2:
