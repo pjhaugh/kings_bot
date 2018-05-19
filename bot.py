@@ -121,10 +121,7 @@ async def deal(ctx):
         ctx.send('That was the last card!  Feel free to !start over...')
     else:
         player, card = tup
-        mention = player.user.mention
-        await ctx.send('{} you drew the {}'.format(mention, card))
-        print(card.value)
-        print(' '.join(game.rules.keys()))
+        await ctx.send('{} you drew the {}'.format(player.mention, card))
         if card.value in game.rules:
             await ctx.send('{}: {}'.format(card.value, game.rules[card.value]))
 
