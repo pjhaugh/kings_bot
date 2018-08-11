@@ -118,7 +118,7 @@ async def deal(ctx):
     game = games[ctx.channel]
     tup = await game.draw()
     if not tup:
-        ctx.send('That was the last card!  Feel free to !start over...')
+        await ctx.send('That was the last card!  Feel free to !start over...')
     else:
         player, card = tup
         await ctx.send('{} you drew the {}'.format(player.mention, card))
